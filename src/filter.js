@@ -54,8 +54,7 @@ Filter.prototype.onceReady = function (cb) {
 
 Filter.prototype.add = function (value, cb) {
   cb = cb || this._error.bind(this)
-  var add = Buffer.isBuffer(value)
-    ? this._addStaticElement : this._addFilterable
+  const add = Buffer.isBuffer(value) ? this._addStaticElement : this._addFilterable
   add.call(this, value, (err) => {
     if (err) return cb(err)
     this._maybeResize(cb)
@@ -71,7 +70,7 @@ Filter.prototype.remove = function (value) {
 }
 
 Filter.prototype._addStaticElement = function (data, cb) {
-  var element = Buffer(data.length)
+  const element = Buffer.alloc(data.length)
   data.copy(element)
   this._elements.push(element)
   this._addElement(element)
@@ -85,7 +84,7 @@ Filter.prototype._addFilterable = function (filterable, cb) {
     this._filterables.push(filterable)
     filterable.on('filteradd', (data) => {
       if (Array.isArray(data)) {
-        for (var element of data) this._addElement(element)
+        for (const element of data) this._addElement(element)
       } else {
         this._addElement(data)
       }
@@ -99,12 +98,12 @@ Filter.prototype._addFilterableElements = function (filterable, cb) {
     cb(null)
     return
   }
-  var called = false
-  var done = (err, elements) => {
+  let called = false
+  const done = (err, elements) => {
     called = true
     cb(err, elements)
   }
-  var addElements = (err, elements, sync) => {
+  const addElements = (err, elements, sync) => {
     if (called) {
       if (err) return this._error(err)
       return this._error(new Error('Filterable#filterElements() returned elements via both async cb and sync return'))
@@ -121,7 +120,7 @@ Filter.prototype._addFilterableElements = function (filterable, cb) {
     debug(`initial filterable elements added:${elements ? elements.length : 0}`)
     return done(null, elements)
   }
-  var asyncAddElements = (...args) => {
+  const asyncAddElements = (...args) => {
     setImmediate(() => addElements(...args))
   }
   addElements(null, filterable.filterElements(asyncAddElements), true)
@@ -146,7 +145,7 @@ Filter.prototype._falsePositiveRate = function () {
 }
 
 Filter.prototype._getPayload = function () {
-  var output = this._filter.toObject()
+  const output = this._filter.toObject()
   output.data = output.vData
   delete output.vData
   return output
@@ -154,8 +153,8 @@ Filter.prototype._getPayload = function () {
 
 Filter.prototype._maybeResize = function (cb) {
   if (!this._filter) return cb(null)
-  var fpRate = this._falsePositiveRate()
-  var threshold = this._resizeThreshold * this._targetFPRate
+  const fpRate = this._falsePositiveRate()
+  const threshold = this._resizeThreshold * this._targetFPRate
   if (fpRate - this._targetFPRate >= threshold) {
     debug(`resizing: fp=${fpRate}, target=${this._targetFPRate}`)
     return this._resize(cb)
@@ -164,7 +163,7 @@ Filter.prototype._maybeResize = function (cb) {
 }
 
 Filter.prototype._addElements = function (elements, send) {
-  for (let element of elements) this._addElement(element, send)
+  for (const element of elements) this._addElement(element, send)
 }
 
 Filter.prototype._resize = function (cb) {
@@ -176,7 +175,7 @@ Filter.prototype._resize = function (cb) {
   this._count = 0
   this._addElements(this._elements, false)
 
-  var filterables = this._filterables
+  const filterables = this._filterables
   this._filterables = []
   async.each(filterables, this._addFilterableElements.bind(this), (err) => {
     if (err) return cb(err)

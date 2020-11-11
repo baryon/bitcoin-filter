@@ -18,7 +18,7 @@ var Filter = require('bitcoin-filter')
 
 var peers = new PeerGroup(params)
 var filter = new Filter(peers)
-filter.add(new Buffer('818895f3dc2c178629d3d2d8fa3ec4a3f8179821', 'hex'))
+filter.add(Buffer.from('818895f3dc2c178629d3d2d8fa3ec4a3f8179821', 'hex'))
 filter.add(walletObject)
 ```
 

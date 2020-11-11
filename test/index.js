@@ -1,13 +1,13 @@
-var wrapEvents = require('event-cleanup')
-var EventEmitter = require('events')
-var test = require('tape')
-var Filter = require('../')
-var inherits = require('util').inherits
+const wrapEvents = require('event-cleanup')
+const EventEmitter = require('events')
+const test = require('tape')
+const Filter = require('../')
+const inherits = require('util').inherits
 
 test('create filter', function (t) {
   t.test('normal constructor', function (t) {
-    var peer = new MockPeer()
-    var f = new Filter(peer)
+    const peer = new MockPeer()
+    const f = new Filter(peer)
     t.ok(f instanceof Filter, 'got Filter')
     f.once('init', function () {
       t.pass('"init" event emitted')
@@ -16,8 +16,8 @@ test('create filter', function (t) {
   })
 
   t.test('constructor without "new"', function (t) {
-    var peer = new MockPeer()
-    var f = Filter(peer)
+    const peer = new MockPeer()
+    const f = Filter(peer)
     t.ok(f instanceof Filter, 'got Filter')
     f.once('init', function () {
       t.pass('"init" event emitted')
@@ -27,7 +27,7 @@ test('create filter', function (t) {
 
   t.test('constructor without peer', function (t) {
     try {
-      var f = new Filter()
+      const f = new Filter()
       t.notOk(f, 'should have thrown')
     } catch (err) {
       t.ok(err, 'error was thrown')
@@ -40,7 +40,7 @@ test('create filter', function (t) {
 })
 
 test('using PeerGroup', function (t) {
-  var peers, f
+  let peers, f
   t.test('create filter', function (t) {
     peers = new MockPeer()
     f = new Filter(peers)
@@ -48,7 +48,7 @@ test('using PeerGroup', function (t) {
   })
 
   t.test('peer added', function (t) {
-    var peer = new MockPeer()
+    const peer = new MockPeer()
     peer.once('filterload', function (payload) {
       t.pass('"filterload" message sent to new peer')
       t.end()
@@ -60,7 +60,7 @@ test('using PeerGroup', function (t) {
 })
 
 test('adding Buffer elements', function (t) {
-  var peer, f
+  let peer, f
   t.test('create filter', function (t) {
     peer = new MockPeer()
     f = new Filter(peer, {
@@ -71,32 +71,32 @@ test('adding Buffer elements', function (t) {
   })
 
   t.test('add elements', function (t) {
-    var events = wrapEvents(peer)
+    const events = wrapEvents(peer)
     events.on('filteradd', function (payload) {
       t.pass('"filteradd" message sent to peer')
     })
     events.on('filterload', function (payload) {
       t.fail('should not have resized filter')
     })
-    for (var i = 0; i < 119; i++) {
-      f.add(new Buffer(i + ''))
+    for (let i = 0; i < 119; i++) {
+      f.add(Buffer.from(i + ''))
     }
     events.removeAll()
     t.end()
   })
 
   t.test('add element and resize', function (t) {
-    var events = wrapEvents(peer)
+    const events = wrapEvents(peer)
     events.on('filterload', function (payload) {
       t.pass('"filterload" sent to peer')
     })
-    f.add(new Buffer('lol'))
+    f.add(Buffer.from('lol'))
     events.removeAll()
     t.end()
   })
 
   t.test('add with callback', function (t) {
-    f.add(new Buffer('test'), function (err) {
+    f.add(Buffer.from('test'), function (err) {
       t.pass('callback called')
       t.error(err, 'no error')
       t.end()
@@ -107,7 +107,7 @@ test('adding Buffer elements', function (t) {
 })
 
 test('Filterables', function (t) {
-  var peer, f
+  let peer, f
   t.test('create filter', function (t) {
     peer = new MockPeer()
     f = new Filter(peer, {
@@ -117,12 +117,12 @@ test('Filterables', function (t) {
     f.once('init', t.end.bind(t))
   })
 
-  var nElements = 0
-  var nFilterables = 0
+  let nElements = 0
+  let nFilterables = 0
 
   t.test('add to filter', function (t) {
     t.test('add filterable with invalid initial elements', function (t) {
-      var filterable = new EventEmitter()
+      const filterable = new EventEmitter()
       filterable.filterElements = function () { return 'test' }
       f.add(filterable, function (err) {
         t.pass('callback called')
@@ -135,7 +135,7 @@ test('Filterables', function (t) {
     })
 
     t.test('add filterable with null initial elements', function (t) {
-      var filterable = new EventEmitter()
+      const filterable = new EventEmitter()
       filterable.filterElements = function () { return null }
       f.add(filterable, function (err) {
         t.pass('callback called')
@@ -148,7 +148,7 @@ test('Filterables', function (t) {
     })
 
     t.test('add filterable with invalid async initial elements', function (t) {
-      var filterable = new EventEmitter()
+      const filterable = new EventEmitter()
       filterable.filterElements = function (cb) {
         t.ok(cb, 'cb passed to "filterElements()"')
         cb(null, 123)
@@ -164,10 +164,10 @@ test('Filterables', function (t) {
     })
 
     t.test('add filterable with async error', function (t) {
-      var filterable = new EventEmitter()
+      const filterable = new EventEmitter()
       filterable.filterElements = function (cb) {
         t.ok(cb, 'cb passed to "filterElements()"')
-        cb(new Error('uh oh'), [ new Buffer('akfjsdhks') ])
+        cb(new Error('uh oh'), [Buffer.from('akfjsdhks')])
       }
       f.add(filterable, function (err) {
         t.pass('callback called')
@@ -180,7 +180,7 @@ test('Filterables', function (t) {
     })
 
     t.test('add filterable with both sync and async initial elements', function (t) {
-      var filterable = new EventEmitter()
+      const filterable = new EventEmitter()
       filterable.filterElements = function (cb) {
         t.ok(cb, 'cb passed to "filterElements()"')
         cb(null, [])
@@ -202,9 +202,9 @@ test('Filterables', function (t) {
     })
 
     t.test('add filterable with valid initial elements', function (t) {
-      var filterable = new EventEmitter()
+      const filterable = new EventEmitter()
       filterable.filterElements = function () {
-        return [ new Buffer('a'), new Buffer('b'), new Buffer('c') ]
+        return [Buffer.from('a'), Buffer.from('b'), Buffer.from('c')]
       }
       f.add(filterable, function (err) {
         t.pass('callback called')
@@ -218,9 +218,9 @@ test('Filterables', function (t) {
     })
 
     t.test('add filterable with valid async initial elements', function (t) {
-      var filterable = new EventEmitter()
+      const filterable = new EventEmitter()
       filterable.filterElements = function (cb) {
-        return cb(null, [ new Buffer('d'), new Buffer('e'), new Buffer('f') ])
+        return cb(null, [Buffer.from('d'), Buffer.from('e'), Buffer.from('f')])
       }
       f.add(filterable, function (err) {
         t.pass('callback called')
@@ -235,20 +235,20 @@ test('Filterables', function (t) {
   })
 
   t.test('add via "filteradd" event', function (t) {
-    var filterable = new EventEmitter()
+    const filterable = new EventEmitter()
     filterable.filterElements = function () { return null }
     f.add(filterable)
     nFilterables++
 
     t.test('single buffer', function (t) {
-      filterable.emit('filteradd', new Buffer('foo'))
+      filterable.emit('filteradd', Buffer.from('foo'))
       nElements++
       t.equal(f._count, nElements, 'element added')
       t.end()
     })
 
     t.test('array of buffers', function (t) {
-      filterable.emit('filteradd', [ new Buffer('bar'), new Buffer('baz') ])
+      filterable.emit('filteradd', [Buffer.from('bar'), Buffer.from('baz')])
       nElements += 2
       t.equal(f._count, nElements, 'elements added')
       t.end()
@@ -258,11 +258,11 @@ test('Filterables', function (t) {
   })
 
   t.test('add before filter is initialized', function (t) {
-    var peer = new MockPeer()
-    var f = new Filter(peer)
-    var filterable = new EventEmitter()
+    const peer = new MockPeer()
+    const f = new Filter(peer)
+    const filterable = new EventEmitter()
     filterable.filterElements = function () {
-      return [ new Buffer('a'), new Buffer('b') ]
+      return [Buffer.from('a'), Buffer.from('b')]
     }
     f.add(filterable, function (err) {
       t.error(err, 'no error')
